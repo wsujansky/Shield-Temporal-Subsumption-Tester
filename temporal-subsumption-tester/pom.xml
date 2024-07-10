@@ -3,7 +3,7 @@
   
   <groupId>gov.hhs.fda.shield</groupId>
   <artifactId>temporal-subsumption-tester</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0</version>
   <packaging>jar</packaging>
   
   <name>Temporal Subsumption Tester</name>
