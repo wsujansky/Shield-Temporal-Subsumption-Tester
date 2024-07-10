@@ -3,8 +3,6 @@ package gov.hhs.fda.shield.temporalreasoning;
 import java.util.Iterator;
 import java.util.List;
 
-import gov.hhs.fda.shield.temporalreasoning.utils.Printers;
-
 public class TemporalExpressionValidator {
 
 	public TemporalExpressionValidator() {
@@ -32,15 +30,15 @@ public class TemporalExpressionValidator {
 		
 		RtipDisjunction superRtipStructure = parser.parse(temporalRelationshipExprSuper);
 		
-		TemporalExpressionSubsumptionTester subsumptionTester = new TemporalExpressionSubsumptionTester();
-		TemporalExpressionNormalizer normalizer = new TemporalExpressionNormalizer(subsumptionTester);
+//		TemporalExpressionSubsumptionTester subsumptionTester = new TemporalExpressionSubsumptionTester();
+//		TemporalExpressionNormalizer normalizer = new TemporalExpressionNormalizer(subsumptionTester);
 		
-		RtipConjunction rtipConjunction = superRtipStructure.getRtipConjunctions().iterator().next();
-		Rtip rtip = rtipConjunction.getRtips().iterator().next();
+//		RtipConjunction rtipConjunction = superRtipStructure.getRtipConjunctions().iterator().next();
+//		Rtip rtip = rtipConjunction.getRtips().iterator().next();
 		
 //		System.out.println("Is " + rtip.getOrigRtipText() + " satisfiable? => " + isSatisfiable(rtip));
 		
-/***
+/***  DEBUGGING ONLY
   		System.out.print("Is this rtipConjunction satisfiable?: ");
  
 		Printers.printOrigText(rtipConjunction, 0); 
@@ -66,7 +64,7 @@ public class TemporalExpressionValidator {
 
 		List<RtipConjunction> rtipConjunctionList = rtipDisjunction.getRtipConjunctions();
 		
-		for (Iterator iterator = rtipConjunctionList.iterator(); iterator.hasNext();) {
+		for (Iterator<RtipConjunction> iterator = rtipConjunctionList.iterator(); iterator.hasNext();) {
 			RtipConjunction rtipConjunction = (RtipConjunction) iterator.next();
 			rtipConjunction = normalizer.expandRtipConjunction(rtipConjunction);
 			rtipConjunction = normalizer.sortRtipConjunction(rtipConjunction);
@@ -80,7 +78,7 @@ public class TemporalExpressionValidator {
 	
 	public static boolean isSatisfiable(RtipConjunction rtipConjunction) {
 		List<Rtip> rtipList = rtipConjunction.getRtips();
-		for (Iterator iterator = rtipList.iterator(); iterator.hasNext();) {
+		for (Iterator<Rtip> iterator = rtipList.iterator(); iterator.hasNext();) {
 			Rtip rtip = (Rtip) iterator.next();
 			if (!isSatisfiable(rtip))
 				return false;

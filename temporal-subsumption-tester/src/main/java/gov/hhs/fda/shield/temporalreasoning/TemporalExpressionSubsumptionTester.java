@@ -7,8 +7,8 @@ import gov.hhs.fda.shield.temporalreasoning.utils.Printers;
 public class TemporalExpressionSubsumptionTester {
 	TemporalExpressionParser parser = new TemporalExpressionParser();
 	TemporalExpressionNormalizer normalizer = new TemporalExpressionNormalizer(this);  // Normalizer uses certain methods from subsumption tester
-	TemporalExpressionValidator validator = new TemporalExpressionValidator();
-private static boolean DEBUG = false;
+//	TemporalExpressionValidator validator = new TemporalExpressionValidator();
+	private static boolean DEBUG = false;
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -34,9 +34,6 @@ private static boolean DEBUG = false;
 //		String temporalRelationshipExprSuper = "{ EB(-INF,1.9dy) }";
 //		String temporalRelationshipExprSub = "{ EB(-INF,1.9dy] }";
 
-//		Float zero1 = Float.valueOf("0");
-//		Float zero2 = Float.valueOf("+0");
-//		System.out.println("Float comparison: " + Double.compare(zero1,zero2));
 		
 /**		TemporalExpressionParser parser = new TemporalExpressionParser();
 		
@@ -80,7 +77,7 @@ System.out.println("ORIGINAL PREDICATE DISJUNCTION: ");
 Printers.printOrigText(superDisjunction,1);
 }
 		RtipDisjunction normalizedSuperDisjunction = normalizer.normalizeRtipDisjunction(superDisjunction);
-		if (!validator.isSatisfiable(normalizedSuperDisjunction)) {
+		if (!TemporalExpressionValidator.isSatisfiable(normalizedSuperDisjunction)) {
 			System.out.println("The predicate temporal expression is not satisfiable: ");
 			Printers.printOrigText(superDisjunction, 1);
 			return false;
@@ -96,7 +93,7 @@ System.out.println("ORIGINAL CANDIDATE DISJUNCTION: ");
 Printers.printOrigText(subDisjunction,1);
 }
 		RtipDisjunction normalizedSubDisjunction = normalizer.normalizeRtipDisjunction(subDisjunction);
-		if (!validator.isSatisfiable(normalizedSubDisjunction)) {
+		if (!TemporalExpressionValidator.isSatisfiable(normalizedSubDisjunction)) {
 			System.out.println("The candidate temporal expression is not satisfiable: ");
 			Printers.printOrigText(subDisjunction, 1);
 			return false;
@@ -118,8 +115,6 @@ Printers.printOrigText(normalizedSubDisjunction,1);
 	
 	public boolean subsumes(RtipConjunction normalizedSuperConjunction, RtipConjunction normalizedSubConjunction) {
 		try {
-//			RtipConjunction normalizedSuperConjunction = this.normalizer.sortRtipConjunction(superConjunction);
-//			RtipConjunction normalizedSubConjunction = this.normalizer.sortRtipConjunction(subConjunction);
 			List<Rtip> superRtips = normalizedSuperConjunction.getRtips();
 			List<Rtip> subRtips = normalizedSubConjunction.getRtips();
 			if (superRtips.size() != subRtips.size()) {
@@ -130,13 +125,6 @@ Printers.printOrigText(normalizedSubDisjunction,1);
 						return false;
 			}
 			return true;
-//			Rtip superPredicate = superConjunction.getRtips().iterator().next();
-//			Rtip subPredicate = subConjunction.getRtips().iterator().next();
-//			if (subsumes(superPredicate, subPredicate)) {
-//				return true;
-//			} else {
-//				return false;
-//			}
 		} catch (Exception e) {
 			System.out.println("ERROR message: " + e.getMessage());
 			return false;

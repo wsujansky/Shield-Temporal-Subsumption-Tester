@@ -1,7 +1,5 @@
 package gov.hhs.fda.shield.temporalreasoning;
 
-import gov.hhs.fda.shield.temporalreasoning.TemporalRelationshipGrammarParser.Rtip_typeContext;
-
 public class Rtip  {
 	private String origRtipText;
 	private RtipType rtipType;
@@ -116,39 +114,7 @@ public class Rtip  {
 	public void setUpperValueSeconds(Float upperValueSeconds) {
 		this.upperValueSeconds = upperValueSeconds;
 	}
-	
-/**  These methods were removed -- they required default values for newly instantiated Rtips, which messed up the parsing/listening process
-	public void setLowerValueFromRtip(Rtip sourceRtip) {
-		this.setLowerIntervalOpen(sourceRtip.isLowerIntervalOpen());
-		this.setLowerValueInfinite(sourceRtip.isLowerValueInfinite());
-		this.setLowerValueSeconds(sourceRtip.getLowerValueSeconds());
-		this.setOrigRtipText(this.fromValuesToText());
-	}
-	
-	public void setLowerValueNegInf() {
-		this.setLowerIntervalOpen(true);
-		this.setLowerValueInfinite(true);
-		this.setLowerValueSeconds(null);
-		this.setOrigRtipText(this.fromValuesToText());
-	}
-	
-	public void setUpperValueFromRtip(Rtip sourceRtip) {
-		this.setUpperIntervalOpen(sourceRtip.isLowerIntervalOpen());
-		this.setUpperValueInfinite(sourceRtip.isLowerValueInfinite());
-		this.setUpperValueSeconds(sourceRtip.getLowerValueSeconds());
-		this.setOrigRtipText(this.fromValuesToText());
-	}
-	
-	public void setUpperValuePosInf() {
-		this.setUpperIntervalOpen(true);
-		this.setUpperValueInfinite(true);
-		this.setUpperValueSeconds(null);
-		this.setOrigRtipText(this.fromValuesToText());
-	}
-***/
-
-
-	
+		
 	public String toString () {
 		return new String("I'm an Rtip: " + origRtipText);
 	}

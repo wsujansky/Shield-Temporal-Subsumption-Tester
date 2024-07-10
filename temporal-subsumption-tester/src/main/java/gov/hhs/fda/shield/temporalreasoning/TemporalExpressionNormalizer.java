@@ -3,9 +3,7 @@ package gov.hhs.fda.shield.temporalreasoning;
 import java.text.Collator;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import gov.hhs.fda.shield.temporalreasoning.utils.Printers;
 
@@ -89,9 +87,9 @@ System.out.print("Consolidated Sorted Expanded Conjunction: ");
 Printers.printGeneratedText(rtipConjunction, 0);
 }
 
-//		Rtip intersectedPredicate = normalizer.intersectRtips(superPredicate, subPredicate);
-//		System.out.println("INTERSECTED PREDICATE => " + intersectedPredicate.getOrigRtipText());
-//		Printers.print(intersectedPredicate, 1);
+//DEBUG	Rtip intersectedPredicate = normalizer.intersectRtips(superPredicate, subPredicate);
+//DEBUG	System.out.println("INTERSECTED PREDICATE => " + intersectedPredicate.getOrigRtipText());
+//DEBUG	Printers.print(intersectedPredicate, 1);
 
 	}
 	
@@ -102,7 +100,7 @@ Printers.printGeneratedText(rtipConjunction, 0);
 	
 	public RtipDisjunction normalizeRtipDisjunction(RtipDisjunction rtipDisjunction) {
 		List<RtipConjunction> rtipConjunctionList = rtipDisjunction.getRtipConjunctions();
-		for (Iterator iterator = rtipConjunctionList.iterator(); iterator.hasNext();) {
+		for (Iterator<RtipConjunction> iterator = rtipConjunctionList.iterator(); iterator.hasNext();) {
 			RtipConjunction rtipConjunction = (RtipConjunction) iterator.next();
 			rtipConjunction = expandRtipConjunction(rtipConjunction); 
 			rtipConjunction = sortRtipConjunction(rtipConjunction);
@@ -120,13 +118,13 @@ Printers.printGeneratedText(rtipConjunction, 0);
 		}
 		int currentIndex = 0; // Initialize
 		while (currentIndex < origListSize) {
-//System.out.println("currentIndex = " + currentIndex + " of " + (origListSize-1));
-//System.out.print("input rtipList: ");
-//Printers.printOrigText(rtipConjunction, 0);
+//DEBUG System.out.println("currentIndex = " + currentIndex + " of " + (origListSize-1));
+//DEBUG System.out.print("input rtipList: ");
+//DEBUG Printers.printOrigText(rtipConjunction, 0);
 			Rtip currentRtip = rtipList.get(currentIndex); 
 			rtipList = addImpliedRtips(currentRtip, rtipList);
-//System.out.print("expanded rtipList: ");
-//Printers.printOrigText(rtipConjunction, 0);
+//DEBUG System.out.print("expanded rtipList: ");
+//DEBUG Printers.printOrigText(rtipConjunction, 0);
 			currentIndex++;
 			}
 		rtipConjunction.setRtips(rtipList);
@@ -137,25 +135,25 @@ Printers.printGeneratedText(rtipConjunction, 0);
 		List<Rtip> rtipList = rtipConjunction.getRtips();
 		int currentListSize = rtipList.size(); // Initialize
 		if (currentListSize == 0) {  // empty list - no Rtips
-System.out.println("Empty RtipList - no op");
+//DEGUG System.out.println("Empty RtipList - no op");
 			return rtipConjunction;  // no-op
 		}
 		int currentIndex = 0; // Initialize
 		int nextIndex = 1; // Initialize
 		while (nextIndex < rtipList.size()) {
-//System.out.print("currentIndex = " + currentIndex + "; nextIndex = " + nextIndex + "; ");
-//Printers.printGeneratedText(rtipConjunction, 0);
+//DEBUG System.out.print("currentIndex = " + currentIndex + "; nextIndex = " + nextIndex + "; ");
+//DEBUG Printers.printGeneratedText(rtipConjunction, 0);
 			Rtip currentRtip = rtipList.get(currentIndex); 
 			Rtip nextRtip = rtipList.get(nextIndex);
 			if (currentRtip.getRtipType() == nextRtip.getRtipType()) { // If same types, then consolidate the pair
-//System.out.println("Intersecting...");
+//DEBUG System.out.println("Intersecting...");
 				Rtip intersectedRtip = intersectRtips(currentRtip,nextRtip);
 				rtipList.remove(nextIndex);
 				rtipList.remove(currentIndex);
 				rtipList.add(currentIndex, intersectedRtip);
 			}
 			else { // otherwise, just advance to next Rtip
-//System.out.println("Advancing...");
+//DEBUG System.out.println("Advancing...");
 			currentIndex++;
 			nextIndex++;
 			}

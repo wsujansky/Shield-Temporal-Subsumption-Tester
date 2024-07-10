@@ -7,7 +7,6 @@ import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import gov.hhs.fda.shield.temporalreasoning.utils.Converters;
-import gov.hhs.fda.shield.temporalreasoning.utils.Printers;
 
 public class BuildGrtrStructureListener extends TemporalRelationshipGrammarBaseListener  {
 	

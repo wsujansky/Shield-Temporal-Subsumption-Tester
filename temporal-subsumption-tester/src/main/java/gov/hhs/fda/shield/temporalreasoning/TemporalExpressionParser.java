@@ -1,22 +1,12 @@
 package gov.hhs.fda.shield.temporalreasoning;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
-import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
-
-import gov.hhs.fda.shield.temporalreasoning.TemporalRelationshipGrammarLexer;
-import gov.hhs.fda.shield.temporalreasoning.TemporalRelationshipGrammarParser;
-import gov.hhs.fda.shield.temporalreasoning.TemporalRelationshipGrammarParser.ExpressionContext;
-import gov.hhs.fda.shield.temporalreasoning.TemporalRelationshipGrammarParser.RtipContext;
 import gov.hhs.fda.shield.temporalreasoning.utils.Printers;
 
 public class TemporalExpressionParser {
@@ -59,7 +49,7 @@ public class TemporalExpressionParser {
 			System.out.println();
 		}
 		
-/***
+/*** FOR DEBUGGING ONLY
 		TemporalRelationshipGrammarLexer lexer = new TemporalRelationshipGrammarLexer(CharStreams.fromString(temporalRelationshipExpr));
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		TemporalRelationshipGrammarParser parser = new TemporalRelationshipGrammarParser(tokens);
@@ -78,14 +68,7 @@ public class TemporalExpressionParser {
 		//Specify our entry point
 //		ParseTree exprContext = parser.rtip();  // This creates the parse tree
 
-//  Visitor not used
-		System.out.println(exprContext.toStringTree(parser)); // print LISP-style tree
-		
-		BuildGrtrStructureVisitor visitor = new BuildGrtrStructureVisitor();
-		String result = visitor.visit(exprContext).toString();
-		System.out.println(result);
-//  End Visitor not used
- 
+
 		// Specify our entry point for walking the tree
 		ParserRuleContext rtipContext = parser.expression();
 		
@@ -114,9 +97,6 @@ public class TemporalExpressionParser {
 		TemporalRelationshipGrammarLexer lexer = new TemporalRelationshipGrammarLexer(CharStreams.fromString(input));
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		TemporalRelationshipGrammarParser parser = new TemporalRelationshipGrammarParser(tokens);
-
-//		try {
-
 			parser.addErrorListener(new BaseErrorListener() {
 				@Override
 				public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line,
@@ -131,14 +111,6 @@ public class TemporalExpressionParser {
 
 			// Attach our listener and walk the tree
 			walker.walk(this.listener, ruleContext);
-
-//		} 
-//	catch (Exception e) {
-//			System.out.println("**** Parse error for code expression: " + input);
-//			System.out.println("ERROR message: " + e.getMessage());
-//			System.out.println();
-//		}
-
 		return builtTemporalStructure;
 	}	
 
