@@ -4,12 +4,22 @@ import java.util.List;
 
 import gov.hhs.fda.shield.temporalreasoning.utils.Printers;
 
+
+/** This class implements the subsumption-testing algorithm for relative temporal relationships that is described in the paper
+ *  https://medrxiv.org/cgi/content/short/2023.11.17.23298715v1
+ *    
+ *  The inputs to the algorithm are two strings, each consisting of a valid expressions defined by the context-free
+ *  grammar TemporalRelationshipGrammar.g4  
+ * 
+ */
 public class TemporalExpressionSubsumptionTester {
 	TemporalExpressionParser parser = new TemporalExpressionParser();
 	TemporalExpressionNormalizer normalizer = new TemporalExpressionNormalizer(this);  // Normalizer uses certain methods from subsumption tester
-//	TemporalExpressionValidator validator = new TemporalExpressionValidator();
+																					
 	private static boolean DEBUG = false;
+	
 
+	// Main method for debugging only
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 //		String temporalRelationshipExprSuper = "{ BB[0sc,+INF) & EE(-INF,-0sc] } | { BE(+0sc, +INF) }  "; // During or After
@@ -43,27 +53,29 @@ public class TemporalExpressionSubsumptionTester {
 **/
 		
 		TemporalExpressionSubsumptionTester tester = new TemporalExpressionSubsumptionTester();
-		
-
 		System.out.println("Does SUPER subsume SUB? => " + tester.subsumes(temporalRelationshipExprSuper, temporalRelationshipExprSub));
 		System.out.println();
-
 		System.out.println("Are SUPER and SUB equivalent? => " + tester.isEquivalent(temporalRelationshipExprSuper, temporalRelationshipExprSub));
 
-//		System.out.println("Does SUPER subsume SUB? => " + tester.subsumes(superRtipStructure, subRtipStructure));
+
 
 	}
 
 	public TemporalExpressionSubsumptionTester() {
-		// TODO Auto-generated constructor stub
+		
 	}
 	
+	// The key method that this package provides to test subsumption between two relative-temporal-relationship expressions
+	// Returns TRUE if the predicateExpression subsumes the candidateExpression; else, returns FALSE
 	public boolean subsumes(String predicateExpression, String candidateExpression) {
+		// Generate parse trees for the predicate and candidate expressions, each consisting of a RtipDisjunction object
 		RtipDisjunction predicateDisjunction = parser.parse(predicateExpression);
 		RtipDisjunction candidateDisjunction = parser.parse(candidateExpression);
+		// Perform subsumption testing on the parse trees
 		return subsumes(predicateDisjunction, candidateDisjunction);
 	}
 	
+	// The two expressions are logically equivalent if they both subsume (i.e., are implied by) each other, per the rules of logic
 	public boolean isEquivalent(String predicateExpression, String candidateExpression) {
 		RtipDisjunction predicateDisjunction = parser.parse(predicateExpression);
 		RtipDisjunction candidateDisjunction = parser.parse(candidateExpression);
@@ -71,12 +83,14 @@ public class TemporalExpressionSubsumptionTester {
 	}
 	
 	public boolean subsumes(RtipDisjunction superDisjunction, RtipDisjunction subDisjunction) {
-		
-		if (DEBUG) {
+if (DEBUG) {
 System.out.println("ORIGINAL PREDICATE DISJUNCTION: ");
 Printers.printOrigText(superDisjunction,1);
 }
+		// First, normalizes both the predicate and candidate expressions.  
+
 		RtipDisjunction normalizedSuperDisjunction = normalizer.normalizeRtipDisjunction(superDisjunction);
+		// Also perform some basic semantic validation of the predicate expression.
 		if (!TemporalExpressionValidator.isSatisfiable(normalizedSuperDisjunction)) {
 			System.out.println("The predicate temporal expression is not satisfiable: ");
 			Printers.printOrigText(superDisjunction, 1);
@@ -93,6 +107,7 @@ System.out.println("ORIGINAL CANDIDATE DISJUNCTION: ");
 Printers.printOrigText(subDisjunction,1);
 }
 		RtipDisjunction normalizedSubDisjunction = normalizer.normalizeRtipDisjunction(subDisjunction);
+		// Also perform some basic semantic validation of the predicate expression.
 		if (!TemporalExpressionValidator.isSatisfiable(normalizedSubDisjunction)) {
 			System.out.println("The candidate temporal expression is not satisfiable: ");
 			Printers.printOrigText(subDisjunction, 1);
@@ -103,6 +118,8 @@ System.out.println("NORMALIZED CANDIDATE DISJUNCTION: ");
 Printers.printOrigText(normalizedSubDisjunction,1);
 }
 
+		// Tests whether, for every conjunction Cx in the candidate expression, there is at least one conjunction Cy in the predicate expression
+		// such that Cy subsumes Cx (see the paper for justification/proof of this method)
 		if (subDisjunction.getRtipConjunctions().stream().allMatch(subConjunction ->
 		       superDisjunction.getRtipConjunctions().stream().anyMatch(superConjunction ->
 		           subsumes(superConjunction, subConjunction))) ) {
@@ -112,7 +129,9 @@ Printers.printOrigText(normalizedSubDisjunction,1);
 			return false;
 		}
 	}
-	
+
+	// Tests whether a normalized conjunction of RTIPs that appears in the predicateExpression subsumes a normalized conjunction of RTIPs
+	// that appears in the candidate expression ((see the paper for justification/proof of this method)
 	public boolean subsumes(RtipConjunction normalizedSuperConjunction, RtipConjunction normalizedSubConjunction) {
 		try {
 			List<Rtip> superRtips = normalizedSuperConjunction.getRtips();
@@ -120,6 +139,12 @@ Printers.printOrigText(normalizedSubDisjunction,1);
 			if (superRtips.size() != subRtips.size()) {
 				throw new Exception("Error in subsumes() test for RtipConjunctions => Lists not same size");
 			}
+			// Iterates through each pair of matching RTIPs in the predicate (super) conjunction and candidate (sub) conjunction,
+			// and tests whether the predicate (super) RTIP subsumes the candidate (sub) RTIP.  Only returns true if the subsumption
+			// relationship holds TRUE for every such pair.
+			// NOTE:  For this algorithm to work correctly, the normalized predicate and candidate conjunctions must have the followring properties:
+			//    1.  Each must contain exactly 4 RTIPs, one of each kind BB, BE, EB, and EE
+			//    2.  Each must be sorted by the type of RTIP, so that each pair of RTIPs that are subsumption tested are of the same type.
 			for (int i = 0; i < superRtips.size(); i++) {
 				if (!subsumes(superRtips.get(i),subRtips.get(i)))
 						return false;
@@ -132,13 +157,9 @@ Printers.printOrigText(normalizedSubDisjunction,1);
 
 	}
 
-
+	// The remainder of the methods test whether one RTIP subsumes another RTIP, per the algorithm described and proven
+	// in the paper 
 	public boolean subsumes(Rtip superPredicate, Rtip subPredicate) {
-//		System.out.println("superPredicate: " + superPredicate.toOriginalText());
-//		Printers.print(superPredicate, 1);
-//		System.out.println("subPredicate: " + subPredicate.toOriginalText());
-//		Printers.print(subPredicate, 1);
-
 		try {
 			if (subPredicate.getRtipType() != superPredicate.getRtipType()) {
 				throw new Exception("Error in subsumes() test for " + superPredicate.getOrigRtipText() + " and "
@@ -148,7 +169,6 @@ Printers.printOrigText(normalizedSubDisjunction,1);
 			if (lowerValueSubsumes(superPredicate, subPredicate) && upperValueSubsumes(superPredicate, subPredicate)) {
 				return true;
 			} else {
-//System.out.println("FALSE: " + superPredicate.getOrigRtipText() + " does not subsume " + subPredicate.getOrigRtipText());
 				return false;
 			}
 		} catch (Exception e) {

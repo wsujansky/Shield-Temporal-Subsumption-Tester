@@ -1,12 +1,12 @@
 package gov.hhs.fda.shield.temporalreasoning.utils;
 
-import java.util.Iterator;
-import java.util.List;
 
+import java.util.List;
 import gov.hhs.fda.shield.temporalreasoning.Rtip;
 import gov.hhs.fda.shield.temporalreasoning.RtipConjunction;
 import gov.hhs.fda.shield.temporalreasoning.RtipDisjunction;
 
+/* This class provides some printing routines used primarily for debugging */
 public class Printers {
 
 	public Printers() {

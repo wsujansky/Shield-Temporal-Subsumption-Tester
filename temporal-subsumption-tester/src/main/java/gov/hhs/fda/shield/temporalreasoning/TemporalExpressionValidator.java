@@ -58,6 +58,12 @@ public class TemporalExpressionValidator {
 
 	}
 	
+	// Basic validation to ensure that the RTIP expression is satisfiable, i.e., that it is possible for the temporal
+	// relationship to be satisfied by two events.  An example of an unsatisfiable RTIP expression would be:
+	//  "event 1 starts after event 2 ends AND event 1 ends before event 2 starts"
+	// Note:  If such an unsatisfiable conjunction of 2 RTIPs is specified, the expansion and consolidation steps of the
+	// normalization process (which precedes the satisfiability test) result in a consolidated RTIP of at least one type
+	// that, itself, cannot be satisfied by any two events.
 	public static boolean isSatisfiable(RtipDisjunction rtipDisjunction) {
 		TemporalExpressionSubsumptionTester subsumptionTester = new TemporalExpressionSubsumptionTester();
 		TemporalExpressionNormalizer normalizer = new TemporalExpressionNormalizer(subsumptionTester);
@@ -70,7 +76,8 @@ public class TemporalExpressionValidator {
 			rtipConjunction = normalizer.sortRtipConjunction(rtipConjunction);
 			rtipConjunction = normalizer.consolidateRtipConjunction(rtipConjunction);
 			if (isSatisfiable(rtipConjunction))
-				return true;  // only one of the disjoined ("Or'd") rtipConjuctions needs to be satisfiable
+				return true;  // Note:  Only one of the disjoined ("Or'd") rtipConjuctions needs to be satisfiable for the
+			                  //        entire disjunction to be satisfiable.
 		}
 		return false;
 	}
@@ -86,6 +93,9 @@ public class TemporalExpressionValidator {
 		return true;
 	}
 	
+	// A consolidated RTIP is not satisfiable if the lower bound on the duration between two time points is greater than the 
+	// upper bound on the same two time points, because no value can satisfy such an RTIP.  E.g., if an RTIP specifies that
+	// the duration between two time points must be both > 10 days and < 5 days, that constraint can never be satisfied.
 	public static boolean isSatisfiable(Rtip rtip) {
 		if (!rtip.isFullySpecified())
 			return false;

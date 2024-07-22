@@ -20,6 +20,7 @@ public class TemporalExpressionParser {
 		// TODO Auto-generated constructor stub
 	}
 
+	// Main class for debugging only
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 //		String temporalRelationshipExpr = "{ BB[0sc,+INF) & EE(-INF,-0sc] } | { BE(+0sc, +INF) }  ";
@@ -92,8 +93,9 @@ public class TemporalExpressionParser {
 		return this.listener;
 	}
 	
+	// Parser takes an input string consisting of Generalized Relative Temporal Relationship (GRTR), as defined by the grammar
+	// TemporalRelationshipGrammar.g4, and generates a parse tree consisting of a single instance of the class RtipDisjunction.
 	public RtipDisjunction parse(String input) throws IllegalStateException {
-
 		TemporalRelationshipGrammarLexer lexer = new TemporalRelationshipGrammarLexer(CharStreams.fromString(input));
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		TemporalRelationshipGrammarParser parser = new TemporalRelationshipGrammarParser(tokens);
@@ -101,7 +103,7 @@ public class TemporalExpressionParser {
 				@Override
 				public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line,
 						int charPositionInLine, String msg, RecognitionException e) {
-					//System.out.println("failed to parse a temporal expression due to " + msg);
+// DEBUG System.out.println("failed to parse a temporal expression due to " + msg);
 					throw new IllegalStateException(msg, e);
 				}
 			});
@@ -111,7 +113,9 @@ public class TemporalExpressionParser {
 
 			// Attach our listener and walk the tree
 			walker.walk(this.listener, ruleContext);
-		return builtTemporalStructure;
+			
+		return builtTemporalStructure;   // This static (global) class member contains the parse tree that was populated by the listener 
+		                                 //  (see BuildGrtrStructureListener.java for the logic that builds the parse tree from the input expression)
 	}	
 
 }

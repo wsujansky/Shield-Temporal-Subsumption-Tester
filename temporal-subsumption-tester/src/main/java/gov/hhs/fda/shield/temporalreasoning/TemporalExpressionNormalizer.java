@@ -4,17 +4,19 @@ import java.text.Collator;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-
 import gov.hhs.fda.shield.temporalreasoning.utils.Printers;
 
-
+/*  This class implements the normalization process for Relative Temporal Interval Relationships (RTIPs) as described in the paper
+ *  https://medrxiv.org/cgi/content/short/2023.11.17.23298715v1
+ */
 public class TemporalExpressionNormalizer {
 	
 	TemporalExpressionSubsumptionTester subsumptionTester;
 	
 	public static Rtip rtipStructureTemp;  // for debugging
-private static boolean DEBUG = true;
-	
+	private static boolean DEBUG = true;
+
+	// Main method for debugging only
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 //		String temporalRelationshipExpr = "{ BB[0sc,+INF) & EE(-INF,-0sc] } | { BE(+0sc, +INF) }  ";
@@ -98,6 +100,10 @@ Printers.printGeneratedText(rtipConjunction, 0);
 		this.subsumptionTester = subsumptionTester;
 	}
 	
+	// Normalization consists of first "expanding" each RTIP conjunction, i.e. adding every *implied* RTIP for each stated RTIP,
+	// then sorting the resulting (expanded) conjunction of RTIPs by RTIP type, and finally logically consolidating the RTIPs of each type
+	// into a single RTIP of that type, so that the resulting expression is a conjunction of exactly 4 RTIPs, one of each type.
+	// For details of the justification and proof of this algorithm, see the paper.
 	public RtipDisjunction normalizeRtipDisjunction(RtipDisjunction rtipDisjunction) {
 		List<RtipConjunction> rtipConjunctionList = rtipDisjunction.getRtipConjunctions();
 		for (Iterator<RtipConjunction> iterator = rtipConjunctionList.iterator(); iterator.hasNext();) {
@@ -118,13 +124,8 @@ Printers.printGeneratedText(rtipConjunction, 0);
 		}
 		int currentIndex = 0; // Initialize
 		while (currentIndex < origListSize) {
-//DEBUG System.out.println("currentIndex = " + currentIndex + " of " + (origListSize-1));
-//DEBUG System.out.print("input rtipList: ");
-//DEBUG Printers.printOrigText(rtipConjunction, 0);
 			Rtip currentRtip = rtipList.get(currentIndex); 
 			rtipList = addImpliedRtips(currentRtip, rtipList);
-//DEBUG System.out.print("expanded rtipList: ");
-//DEBUG Printers.printOrigText(rtipConjunction, 0);
 			currentIndex++;
 			}
 		rtipConjunction.setRtips(rtipList);
@@ -135,25 +136,21 @@ Printers.printGeneratedText(rtipConjunction, 0);
 		List<Rtip> rtipList = rtipConjunction.getRtips();
 		int currentListSize = rtipList.size(); // Initialize
 		if (currentListSize == 0) {  // empty list - no Rtips
-//DEGUG System.out.println("Empty RtipList - no op");
 			return rtipConjunction;  // no-op
 		}
 		int currentIndex = 0; // Initialize
 		int nextIndex = 1; // Initialize
 		while (nextIndex < rtipList.size()) {
-//DEBUG System.out.print("currentIndex = " + currentIndex + "; nextIndex = " + nextIndex + "; ");
-//DEBUG Printers.printGeneratedText(rtipConjunction, 0);
 			Rtip currentRtip = rtipList.get(currentIndex); 
 			Rtip nextRtip = rtipList.get(nextIndex);
 			if (currentRtip.getRtipType() == nextRtip.getRtipType()) { // If same types, then consolidate the pair
-//DEBUG System.out.println("Intersecting...");
+																	   // and replace it by the consolidated RTIP
 				Rtip intersectedRtip = intersectRtips(currentRtip,nextRtip);
 				rtipList.remove(nextIndex);
 				rtipList.remove(currentIndex);
 				rtipList.add(currentIndex, intersectedRtip);
 			}
-			else { // otherwise, just advance to next Rtip
-//DEBUG System.out.println("Advancing...");
+			else { // otherwise, just advance to next RTIP, since RTIPs of different types cannot be consolidated
 			currentIndex++;
 			nextIndex++;
 			}
@@ -172,7 +169,7 @@ Printers.printGeneratedText(rtipConjunction, 0);
 		}
 	}
 	
-	// See Table 2. RTIP Implication Table in the journal article - Row "BB"
+	// See Table 2. RTIP Implication Table in the paper - Row "BB"
 	public List<Rtip> addImpliedBegBegRtips(Rtip sourceRtip, List<Rtip> rtipList) {
 		Rtip impliedBeRtip = new Rtip(RtipType.BEG_END);
 		impliedBeRtip = setLowerValueNegInf(impliedBeRtip);
@@ -192,7 +189,7 @@ Printers.printGeneratedText(rtipConjunction, 0);
 		return rtipList;
 	}
 	
-	// See Table 2. RTIP Implication Table in the journal article - Row "BE"
+	// See Table 2. RTIP Implication Table in the paper - Row "BE"
 	public List<Rtip> addImpliedBegEndRtips(Rtip sourceRtip, List<Rtip> rtipList) {
 		Rtip impliedBbRtip = new Rtip(RtipType.BEG_BEG);
 		impliedBbRtip = setLowerValuesFromRtip(impliedBbRtip, sourceRtip);
@@ -212,7 +209,7 @@ Printers.printGeneratedText(rtipConjunction, 0);
 		return rtipList;
 	}
 	
-	// See Table 2. RTIP Implication Table in the journal article - Row "EB"
+	// See Table 2. RTIP Implication Table in the paper - Row "EB"
 	public List<Rtip> addImpliedEndBegRtips(Rtip sourceRtip, List<Rtip> rtipList) {
 		Rtip impliedBbRtip = new Rtip(RtipType.BEG_BEG);
 		impliedBbRtip = setLowerValueNegInf(impliedBbRtip);
@@ -232,7 +229,7 @@ Printers.printGeneratedText(rtipConjunction, 0);
 		return rtipList;
 	}
 	
-	// See Table 2. RTIP Implication Table in the journal article - Row "EE"
+	// See Table 2. RTIP Implication Table in the paper - Row "EE"
 	public List<Rtip> addImpliedEndEndRtips(Rtip sourceRtip, List<Rtip> rtipList) {
 		Rtip impliedBbRtip = new Rtip(RtipType.BEG_BEG);
 		impliedBbRtip = setLowerValueNegInf(impliedBbRtip);
@@ -259,7 +256,7 @@ Printers.printGeneratedText(rtipConjunction, 0);
 				throw new Exception("Error in intersectRtips() for " + rtip1.getOrigRtipText() + " and "
 						+ rtip2.getOrigRtipText() + " => Not same Rtip types");
 			}
-			// Set the RtipType of the resulting Rtip (does not changes; note that the types of rtip1 and rtip2 are the same)
+			// Set the RtipType of the resulting RTIP (does not changes; note that the types of rtip1 and rtip2 are the same)
 			intersectedRtip.setRtipType(rtip1.getRtipType()); 
 			// Set lower value to be the most restrictive of the two
 			if (subsumptionTester.lowerValueSubsumes(rtip1, rtip2)) {
@@ -312,7 +309,7 @@ Printers.printGeneratedText(rtipConjunction, 0);
 		return destinationRtip;
 	}
 
-
+	// Sorts a conjunction of RTIPs by the string that denotes the type of each RTIP (e.g., "BB", "BE", "EB", and "EE")
 	public RtipConjunction sortRtipConjunction(RtipConjunction rtipConjunction) {
 		List<Rtip> list = rtipConjunction.getRtips();
 

@@ -5,22 +5,39 @@
 
 grammar TemporalRelationshipGrammar;
 
-// Grammar rules
+// Grammar rules for the representation of temporal relationships between two events
+// For the semantics of this language, see https://medrxiv.org/cgi/content/short/2023.11.17.23298715v1
+
+// Example valid expressions:
+//     
+//    { BE(0sc,+1mo] }                                                    a single RTIP
+//    { EB(+4wk,+2mo) & BB(0dy,+INF) & EE(-INF, 0yr)  }                   a conjunction of 2 or more RTIPs
+//    { BE(0sc,+1mo] } |  { EB(+4wk,+2mo) }                               a disjunction of 2 or more conjunctions of RTIPs
+//    { BB[0wk,+13wk] & EE[0sc,0sc] } | { BB[27wk, +INF) & EE[0sc,0sc] }  a disjunction of conjunctions
+//
+// Example *invalid* expression:
+//
+//    {   { EB(+4wk,+2mo) } | { EE[0sc,0sc] }  &  { BB(0dy,+INF) } | { EE(-INF, 0yr) }   }    a conjunction of disjunctions
+
+
+// TODO - To handle the full language described in the paper, which allows arbitrary combinations of conjunctions and disjunctions of
+//        RTIPs, the grammar will need to be modified to recognize such expressions.  The temporal reasoner does not yet have the
+//        ability to normalize such expressions into a single disjunction of conjunctions, but may be enhanced to do so later.  At that
+//        time, the grammar may be enhanced to recognize and parse such expressions.
+
+// In the meantime, these rules assume that the expressions are already in disjunctive normal form, i.e., consist of a single disjunction
+// of one or more conjunctions.  Hence, input expressions must already consist of a disjunction of conjunctions of 
+// Relative Temporal Interval Predicates (RTIPs), including degenerate cases such as a single RTIP, or a single conjunction of RTIPs.
+
+
+// Rule definitions
 
 expression : rtip_disjunction ;
 
-//TEMP - will need to generalize to handle arbitrary combinations of conjunctions/disjunctions
-//These rules assume that the expressions are already in disjunctive normal form
 rtip_disjunction : rtip_conjunction |
 				   rtip_conjunction (DISJUNCTION_TOKEN rtip_conjunction)+ ;
 
-//rtip_conjunction :  '{' rtip '}' |
-//      			  '{' rtip (CONJUNCTION_TOKEN rtip)+ '}' ;
-rtip_conjunction :  '{' rtip (CONJUNCTION_TOKEN rtip)* '}' ;
-//  LATER REPLACE WITH THIS:  rtip_conjunction :  rtip (CONJUNCTION_TOKEN rtip)*  ;
-
-
-//END TEMP				   
+rtip_conjunction :  '{' rtip (CONJUNCTION_TOKEN rtip)* '}' ;			   
 
 rtip : rtip_type lower_delimiter lower_value ',' upper_value upper_delimiter ;
 

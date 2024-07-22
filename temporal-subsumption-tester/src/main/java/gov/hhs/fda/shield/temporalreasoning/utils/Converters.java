@@ -10,7 +10,11 @@ public class Converters {
 	public Converters() {
 	}
 	
-	/**  Note:  This uses the conversion factor 1 month = 30.43666667 days  */
+	/**  Note:  This uses the following conversion factors from the paper:
+	 *          1 year = 12 months = 365.24 days
+	 *          1 week = 7 days
+	 *          Therefore, 1 month = 4.348095238 weeks = 30.43666667 days  
+	 *          Also, 1 Day = 24 Hours; 1 Hour = 60 Minutes ; 1 Minute = 60 Seconds    */
 	public static Float convertToSeconds(Float rawNumericValue, TemporalUom uom) {
 		final Map<TemporalUom, Float> conversionFactorToSeconds = new HashMap<TemporalUom, Float>();
 		conversionFactorToSeconds.put(TemporalUom.SEC, Float.parseFloat("1"));  // secs in a sec
